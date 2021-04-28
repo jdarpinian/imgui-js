@@ -75,6 +75,7 @@ export declare enum ImGuiWindowFlags {
     NoNavInputs = 262144,
     NoNavFocus = 524288,
     UnsavedDocument = 1048576,
+    NoDocking = 2097152,
     NoNav = 786432,
     NoDecoration = 43,
     NoInputs = 786944,
@@ -295,6 +296,30 @@ export declare enum ImGuiHoveredFlags {
     RectOnly = 416,
     RootAndChildWindows = 3
 }
+export { ImGuiViewportFlags as ViewportFlags };
+export declare enum ImGuiViewportFlags {
+    None = 0,
+    NoDecoration = 1,
+    NoTaskBarIcon = 2,
+    NoFocusOnAppearing = 4,
+    NoFocusOnClick = 8,
+    NoInputs = 16,
+    NoRendererClear = 32,
+    TopMost = 64,
+    Minimized = 128,
+    NoAutoMerge = 256,
+    CanHostOtherWindows = 512
+}
+export { ImGuiDockNodeFlags as DockNodeFlags };
+export declare enum ImGuiDockNodeFlags {
+    None = 0,
+    KeepAliveOnly = 1,
+    NoDockingInCentralNode = 4,
+    PassthruCentralNode = 8,
+    NoSplit = 16,
+    NoResize = 32,
+    AutoHideTabBar = 64
+}
 export { ImGuiDragDropFlags as DragDropFlags };
 export declare enum ImGuiDragDropFlags {
     None = 0,
@@ -408,6 +433,7 @@ export declare enum ImGuiConfigFlags {
     NavNoCaptureKeyboard = 8,
     NoMouse = 16,
     NoMouseCursorChange = 32,
+    DockingEnable = 64,
     IsSRGB = 1048576,
     IsTouchScreen = 2097152
 }
@@ -685,6 +711,17 @@ export declare class ImGuiTextBuffer {
 }
 export declare class ImGuiStorage {
 }
+export { interface_ImGuiWindowClass } from "bind-imgui";
+export { reference_ImGuiWindowClass } from "bind-imgui";
+export declare class ImGuiWindowClass implements Bind.interface_ImGuiWindowClass {
+    ClassId: number;
+    TabItemFlagsOverrideSet: ImGuiTabItemFlags;
+    DockNodeFlagsOverrideSet: ImGuiDockNodeFlags;
+    DockNodeFlagsOverrideClear: ImGuiDockNodeFlags;
+    DockingAlwaysTabBar: boolean;
+    DockingAllowUnclassed: boolean;
+    constructor(ClassId?: number, TabItemFlagsOverrideSet?: ImGuiTabItemFlags, DockNodeFlagsOverrideSet?: ImGuiDockNodeFlags, DockNodeFlagsOverrideClear?: ImGuiDockNodeFlags, DockingAlwaysTabBar?: boolean, DockingAllowUnclassed?: boolean);
+}
 export { ImGuiPayload as Payload };
 export interface ImGuiPayload<T> {
     Data: T;
@@ -942,14 +979,18 @@ export declare class ImFontConfig {
     get OversampleH(): number;
     get OversampleV(): number;
     get PixelSnapH(): boolean;
+    set PixelSnapH(value: boolean);
     get GlyphExtraSpacing(): ImVec2;
     get GlyphOffset(): ImVec2;
+    set GlyphOffset(value: ImVec2);
     get GlyphRanges(): number | null;
     get GlyphMinAdvanceX(): number;
     get GlyphMaxAdvanceX(): number;
     get MergeMode(): boolean;
+    set MergeMode(value: boolean);
     get FontBuilderFlags(): number;
     get RasterizerMultiply(): number;
+    get EllipsisChar(): number;
     get Name(): string;
     set Name(value: string);
     get DstFont(): ImFont | null;
@@ -1076,17 +1117,11 @@ export declare class ImFont {
     RenderText(draw_list: ImDrawList, size: number, pos: Readonly<Bind.interface_ImVec2>, col: Bind.ImU32, clip_rect: Readonly<Bind.interface_ImVec4>, text_begin: string, text_end?: number | null, wrap_width?: number, cpu_fine_clip?: boolean): void;
     IsGlyphRangeUnused(c_begin: number, c_last: number): boolean;
 }
-export { ImGuiViewportFlags as ViewportFlags };
-export declare enum ImGuiViewportFlags {
-    None = 0,
-    IsPlatformWindow = 1,
-    IsPlatformMonitor = 2,
-    OwnedByApp = 4
-}
 export { ImGuiViewport as Viewport };
 export declare class ImGuiViewport {
     readonly native: Bind.reference_ImGuiViewport;
     constructor(native: Bind.reference_ImGuiViewport);
+    get ID(): number;
     get Flags(): ImGuiViewportFlags;
     get Pos(): Bind.interface_ImVec2;
     get Size(): Bind.interface_ImVec2;
@@ -1094,6 +1129,7 @@ export declare class ImGuiViewport {
     get WorkSize(): Bind.interface_ImVec2;
     GetCenter(): ImVec2;
     GetWorkCenter(): ImVec2;
+    get DpiScale(): number;
 }
 export { ImGuiStyle as Style };
 export declare class ImGuiStyle {
@@ -1209,6 +1245,12 @@ export declare class ImGuiIO {
     get FontDefault(): ImFont | null;
     set FontDefault(value: ImFont | null);
     get DisplayFramebufferScale(): Bind.reference_ImVec2;
+    get ConfigDockingNoSplit(): boolean;
+    set ConfigDockingNoSplit(value: boolean);
+    get ConfigDockingAlwaysTabBar(): boolean;
+    set ConfigDockingAlwaysTabBar(value: boolean);
+    get ConfigDockingTransparentPayload(): boolean;
+    set ConfigDockingTransparentPayload(value: boolean);
     get ConfigMacOSXBehaviors(): boolean;
     set ConfigMacOSXBehaviors(value: boolean);
     get ConfigInputTextCursorBlink(): boolean;
@@ -1340,6 +1382,7 @@ export declare function SetNextWindowContentSize(size: Readonly<Bind.interface_I
 export declare function SetNextWindowCollapsed(collapsed: boolean, cond?: ImGuiCond): void;
 export declare function SetNextWindowFocus(): void;
 export declare function SetNextWindowBgAlpha(alpha: number): void;
+export declare function SetNextWindowViewport(viewport_id: number): void;
 export declare function SetWindowPos(name_or_pos: string | Readonly<Bind.interface_ImVec2>, pos_or_cond?: Readonly<Bind.interface_ImVec2> | ImGuiCond, cond?: ImGuiCond): void;
 export declare function SetWindowSize(name_or_size: string | Readonly<Bind.interface_ImVec2>, size_or_cond?: Readonly<Bind.interface_ImVec2> | ImGuiCond, cond?: ImGuiCond): void;
 export declare function SetWindowCollapsed(name_or_collapsed: string | boolean, collapsed_or_cond?: boolean | ImGuiCond, cond?: ImGuiCond): void;
@@ -1559,6 +1602,13 @@ export declare function BeginTabItem(label: string, p_open?: Bind.ImScalar<boole
 export declare function EndTabItem(): void;
 export declare function TabItemButton(label: string, flags?: ImGuiTabItemFlags): boolean;
 export declare function SetTabItemClosed(tab_or_docked_window_label: string): void;
+export declare function DockSpace(id: number, size?: Readonly<Bind.interface_ImVec2>, flags?: ImGuiDockNodeFlags, window_class?: Readonly<Bind.interface_ImGuiWindowClass> | null): void;
+export declare function DockSpaceOverMainViewport(flags?: ImGuiDockNodeFlags): Bind.ImGuiID;
+export declare function DockSpaceOverViewportID(viewport_id: Bind.ImGuiID, flags?: ImGuiDockNodeFlags): Bind.ImGuiID;
+export declare function SetNextWindowDockID(dock_id: Bind.ImGuiID, cond?: ImGuiCond): void;
+export declare function SetNextWindowClass(window_class: Readonly<Bind.interface_ImGuiWindowClass>): void;
+export declare function GetWindowDockID(): Bind.ImGuiID;
+export declare function IsWindowDocked(): boolean;
 export declare function LogToTTY(max_depth?: number): void;
 export declare function LogToFile(max_depth?: number, filename?: string | null): void;
 export declare function LogToClipboard(max_depth?: number): void;
@@ -1643,3 +1693,5 @@ export declare function DebugCheckVersionAndDataLayout(version_str: string, sz_i
 export declare function SetAllocatorFunctions(alloc_func: (sz: number, user_data: any) => number, free_func: (ptr: number, user_data: any) => void, user_data?: any): void;
 export declare function MemAlloc(sz: number): void;
 export declare function MemFree(ptr: any): void;
+export declare function GlyphRangeAlloc(glyph_ranges: Uint16Array): number;
+export declare function GlyphRangeExport(glyph_ranges: number): Uint16Array;

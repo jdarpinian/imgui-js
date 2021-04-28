@@ -518,6 +518,56 @@ EMSCRIPTEN_BINDINGS(ImGuiListClipper) {
     ;
 }
 
+EMSCRIPTEN_BINDINGS(ImGuiWindowClass) {
+    emscripten::class_<ImGuiWindowClass>("ImGuiWindowClass")
+        .constructor()
+        CLASS_MEMBER(ImGuiWindowClass, ClassId)
+        //CLASS_MEMBER(ImGuiWindowClass, ParentViewportId)
+        //CLASS_MEMBER(ImGuiWindowClass, ViewportFlagsOverrideSet)
+        //CLASS_MEMBER(ImGuiWindowClass, ViewportFlagsOverrideClear)
+        CLASS_MEMBER(ImGuiWindowClass, TabItemFlagsOverrideSet)
+        CLASS_MEMBER(ImGuiWindowClass, DockNodeFlagsOverrideSet)
+        CLASS_MEMBER(ImGuiWindowClass, DockingAlwaysTabBar)
+        CLASS_MEMBER(ImGuiWindowClass, DockingAllowUnclassed)
+    ;
+}
+
+ImGuiWindowClass& import_ImGuiWindowClass(const emscripten::val& value, ImGuiWindowClass& out) {
+    out.ClassId = import_value<ImGuiID>(value["ClassId"]);
+    out.TabItemFlagsOverrideSet = import_value<ImGuiTabItemFlags>(value["TabItemFlagsOverrideSet"]);
+    out.DockNodeFlagsOverrideSet = import_value<ImGuiDockNodeFlags>(value["DockNodeFlagsOverrideSet"]);
+    out.DockingAlwaysTabBar = import_value<bool>(value["DockingAlwaysTabBar"]);
+    out.DockingAllowUnclassed = import_value<bool>(value["DockingAllowUnclassed"]);
+    return out;
+}
+
+ImGuiWindowClass import_ImGuiWindowClass(const emscripten::val& value) {
+    ImGuiWindowClass out; import_ImGuiWindowClass(value, out); return out;
+}
+
+EMSCRIPTEN_BINDINGS(ImGuiViewport) {
+    emscripten::class_<ImGuiViewport>("ImGuiViewport")
+        .constructor()
+        // ImGuiID             ID;                     // Unique identifier for the viewport
+        CLASS_MEMBER(ImGuiViewport, ID)
+        // ImGuiViewportFlags  Flags;                  // See ImGuiViewportFlags_
+        CLASS_MEMBER(ImGuiViewport, Flags)
+        // ImVec2              Pos;                    // Main Area: Position of the viewport (the imgui coordinates are the same as OS desktop/native coordinates)
+        CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiViewport, Pos)
+        // ImVec2              Size;                   // Main Area: Size of the viewport.
+        CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiViewport, Size)
+        // ImVec2              WorkPos;                // Work Area: Position of the viewport minus task bars, menus bars, status bars (>= Pos)
+        CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiViewport, WorkPos)
+        // ImVec2              WorkSize;               // Work Area: Size of the viewport minus task bars, menu bars, status bars (<= Size)
+        CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiViewport, WorkSize)
+        // float               DpiScale;               // 1.0f = 96 DPI = No extra scale.
+        CLASS_MEMBER(ImGuiViewport, DpiScale)
+        // ImGuiID             ParentViewportId;       // (Advanced) 0: no parent. Instruct the platform backend to setup a parent/child relationship between platform windows.
+        CLASS_MEMBER(ImGuiViewport, ParentViewportId)
+        // ImDrawData*         DrawData;               // The ImDrawData corresponding to this viewport. Valid after Render() and until the next call to NewFrame().
+    ;
+}
+
 EMSCRIPTEN_BINDINGS(ImGuiTableColumnSortSpecs) {
     emscripten::class_<ImGuiTableColumnSortSpecs>("ImGuiTableSortColumnSpecs")
         // ImGuiID                     ColumnUserID;       // User id of the column (if specified by a TableSetupColumn() call)
@@ -908,6 +958,21 @@ EMSCRIPTEN_BINDINGS(ImFontConfig) {
         // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
         CLASS_MEMBER(ImFontConfig, RasterizerMultiply)
 
+        // unsigned int    FontBuilderFlags;       // 0        // Settings for custom font builder. THIS IS BUILDER IMPLEMENTATION DEPENDENT. Leave as zero if unsure.
+        CLASS_MEMBER(ImFontConfig, FontBuilderFlags)
+        // float           RasterizerMultiply;     // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
+        CLASS_MEMBER(ImFontConfig, RasterizerMultiply)
+        // ImWchar         EllipsisChar;           // -1       // Explicitly specify unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
+        /*
+        CLASS_MEMBER_GET_SET(ImFontConfig, EllipsisChar,
+            {
+                if (that.EllipsisChar == (ImWchar)-1)
+                  return emscripten::val(-1);
+                return emscripten::val(that.EllipsisChar);
+            },
+            { that.EllipsisChar = (ImWchar)value.as<int>(); }
+        )
+*/
         // [Internal]
         // char            Name[32];                               // Name (strictly to ease debugging)
         CLASS_MEMBER_GET_SET(ImFontConfig, Name, 
@@ -1076,6 +1141,8 @@ ImFontConfig import_ImFontConfig(emscripten::val value) {
     font_cfg.FontBuilderFlags = value["FontBuilderFlags"].as<unsigned int>();
     // float           RasterizerMultiply;         // 1.0f     // Brighten (>1.0f) or darken (<1.0f) font output. Brightening small fonts may be a good workaround to make them more readable.
     font_cfg.RasterizerMultiply = import_value<float>(value["RasterizerMultiply"]);
+    // ImWchar         EllipsisChar;               // -1       // Explicitly specify unicode codepoint of ellipsis character. When fonts are being merged first specified ellipsis will be used.
+    font_cfg.EllipsisChar = (ImWchar)import_value<int>(value["EllipsisChar"]);
 
     // [Internal]
     // char            Name[32];                               // Name (strictly to ease debugging)
@@ -1276,27 +1343,6 @@ EMSCRIPTEN_BINDINGS(ImFontAtlas) {
     ;
 }
 
-EMSCRIPTEN_BINDINGS(ImGuiViewport) {
-    emscripten::class_<ImGuiViewport>("ImGuiViewport")
-        // ImGuiViewportFlags  Flags;                  // See ImGuiViewportFlags_
-        CLASS_MEMBER(ImGuiViewport, Flags)
-        // ImVec2              Pos;                    // Main Area: Position of the viewport (Dear ImGui coordinates are the same as OS desktop/native coordinates)
-        CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiViewport, Pos)
-        // ImVec2              Size;                   // Main Area: Size of the viewport.
-        CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiViewport, Size)
-        // ImVec2              WorkPos;                // Work Area: Position of the viewport minus task bars, menus bars, status bars (>= Pos)
-        CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiViewport, WorkPos)
-        // ImVec2              WorkSize;               // Work Area: Size of the viewport minus task bars, menu bars, status bars (<= Size)
-        CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiViewport, WorkSize)
-
-        // ImGuiViewport()     { memset(this, 0, sizeof(*this)); }
-
-        // Helpers
-        // ImVec2              GetCenter() const       { return ImVec2(Pos.x + Size.x * 0.5f, Pos.y + Size.y * 0.5f); }
-        // ImVec2              GetWorkCenter() const   { return ImVec2(WorkPos.x + WorkSize.x * 0.5f, WorkPos.y + WorkSize.y * 0.5f); }
-    ;
-}
-
 EMSCRIPTEN_BINDINGS(ImGuiIO) {
     emscripten::class_<ImGuiIO>("ImGuiIO")
         //------------------------------------------------------------------
@@ -1365,6 +1411,14 @@ EMSCRIPTEN_BINDINGS(ImGuiIO) {
         CLASS_MEMBER_GET_SET_RAW_POINTER(ImGuiIO, FontDefault)
         // ImVec2        DisplayFramebufferScale;  // = (1.0f,1.0f)        // For retina display or other situations where window coordinates are different from framebuffer coordinates. User storage only, presently not used by ImGui.
         CLASS_MEMBER_GET_RAW_REFERENCE(ImGuiIO, DisplayFramebufferScale)
+
+        // Docking options (when ImGuiConfigFlags_DockingEnable is set)
+        // bool        ConfigDockingNoSplit;           // = false          // Simplified docking mode: disable window splitting, so docking is limited to merging multiple windows together into tab-bars.
+        CLASS_MEMBER(ImGuiIO, ConfigDockingNoSplit)
+        // bool        ConfigDockingAlwaysTabBar;      // = false          // [BETA] [FIXME: This currently creates regression with auto-sizing and general overhead] Make every single floating window display within a docking node.
+        CLASS_MEMBER(ImGuiIO, ConfigDockingAlwaysTabBar)
+        // bool        ConfigDockingTransparentPayload;// = false          // [BETA] Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if rendering of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge.
+        CLASS_MEMBER(ImGuiIO, ConfigDockingTransparentPayload)
 
         // Advanced/subtle behaviors
         // bool        MouseDrawCursor;            // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
@@ -1851,6 +1905,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("SetNextWindowCollapsed", &ImGui::SetNextWindowCollapsed);
     emscripten::function("SetNextWindowFocus", &ImGui::SetNextWindowFocus);
     emscripten::function("SetNextWindowBgAlpha", &ImGui::SetNextWindowBgAlpha);
+    // IMGUI_API void          SetNextWindowViewport(ImGuiID viewport_id);                                 // set next window viewport
+    emscripten::function("SetNextWindowViewport", &ImGui::SetNextWindowViewport);
     emscripten::function("SetWindowPos", FUNCTION(void, (emscripten::val pos, ImGuiCond cond), { ImGui::SetWindowPos(import_ImVec2(pos), cond); }));
     emscripten::function("SetWindowSize", FUNCTION(void, (emscripten::val pos, ImGuiCond cond), { ImGui::SetWindowSize(import_ImVec2(pos), cond); }));
     emscripten::function("SetWindowCollapsed", FUNCTION(void, (bool collapsed, ImGuiCond cond), { ImGui::SetWindowCollapsed(collapsed, cond); }));
@@ -2766,6 +2822,45 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     emscripten::function("TabItemButton", FUNCTION(bool, (std::string label, ImGuiTabItemFlags flags), { return ImGui::TabItemButton(label.c_str(), flags); }));
     emscripten::function("SetTabItemClosed", FUNCTION(void, (std::string tab_or_docked_window_label), { ImGui::SetTabItemClosed(tab_or_docked_window_label.c_str()); }));
 
+    // Docking
+    // [BETA API] Enable with io.ConfigFlags |= ImGuiConfigFlags_DockingEnable.
+    // Note: You can use most Docking facilities without calling any API. You DO NOT need to call DockSpace() to use Docking!
+    // - Drag from window title bar or their tab to dock/undock. Hold SHIFT to disable docking.
+    // - Drag from window menu button (upper-left button) to undock an entire node (all windows).
+    // About DockSpace:
+    // - Use DockSpace() to create an explicit dock node _within_ an existing window. See Docking demo for details.
+    // - DockSpace() needs to be submitted _before_ any window they can host. If you use a dockspace, submit it early in your app.
+    // IMGUI_API void          DockSpace(ImGuiID id, const ImVec2& size = ImVec2(0, 0), ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+    emscripten::function("DockSpace", FUNCTION(void, (emscripten::val id, emscripten::val size, ImGuiDockNodeFlags flags, emscripten::val window_class), {
+        if (window_class.isNull()) {
+            ImGui::DockSpace(id.as<ImGuiID>(), import_ImVec2(size), flags, NULL);
+        } else {
+            ImGuiWindowClass wc = import_ImGuiWindowClass(window_class);
+            ImGui::DockSpace(id.as<ImGuiID>(), import_ImVec2(size), flags, &wc);
+        }
+    }));
+    // IMGUI_API ImGuiID       DockSpaceOverViewport(ImGuiViewport* viewport = NULL, ImGuiDockNodeFlags flags = 0, const ImGuiWindowClass* window_class = NULL);
+    emscripten::function("DockSpaceOverMainViewport", FUNCTION(ImGuiID, (ImGuiDockNodeFlags flags), {
+          ImGuiViewport* vp = ImGui::GetMainViewport();
+          return ImGui::DockSpaceOverViewport(vp, flags);
+    }));
+    emscripten::function("DockSpaceOverViewportID", FUNCTION(ImGuiID, (ImGuiID viewport_id, ImGuiDockNodeFlags flags), {
+          ImGuiViewport* vp = ImGui::FindViewportByID(viewport_id);
+          //return ImGui::DockSpaceOverViewport(vp, flags);
+          return ImGui::DockSpaceOverViewport(NULL, flags);
+    }));
+    // IMGUI_API void          SetNextWindowDockID(ImGuiID dock_id, ImGuiCond cond = 0);           // set next window dock id (FIXME-DOCK)
+    emscripten::function("SetNextWindowDockID", &ImGui::SetNextWindowDockID);
+    // IMGUI_API void          SetNextWindowClass(const ImGuiWindowClass* window_class);           // set next window class (rare/advanced uses: provide hints to the platform backend via altered viewport flags and parent/child info)
+    emscripten::function("SetNextWindowClass", FUNCTION(void, (emscripten::val window_class), {
+        ImGuiWindowClass wc = import_ImGuiWindowClass(window_class);
+        ImGui::SetNextWindowClass(&wc);
+    }));
+    // IMGUI_API ImGuiID       GetWindowDockID();
+    emscripten::function("GetWindowDockID", &ImGui::GetWindowDockID);
+    // IMGUI_API bool          IsWindowDocked();                                                   // is current window docked into another window?
+    emscripten::function("IsWindowDocked", &ImGui::IsWindowDocked);
+
     // Logging/Capture
     // - All text output from the interface can be captured into tty/file/clipboard. By default, tree nodes are automatically opened during logging.
     // IMGUI_API void          LogToTTY(int auto_open_depth = -1);                                 // start logging to tty (stdout)
@@ -3020,4 +3115,41 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     }));
     emscripten::function("MemAlloc", FUNCTION(emscripten::val, (size_t sz), { void* p = ImGui::MemAlloc(sz); return emscripten::val(p); }), emscripten::allow_raw_pointers());
     emscripten::function("MemFree", FUNCTION(void, (emscripten::val ptr), { void* _ptr = ptr.as<void*>(emscripten::allow_raw_pointers()); ImGui::MemFree(_ptr); }));
+    // No equivalent in ImGUI.
+    // Allocate memory for a glyph range. Copy over the glyph range sent from javascript.
+    // Return a pointer to the glyph range.
+    // Can free the pointer using MemFree.
+    emscripten::function("GlyphRangeAlloc", FUNCTION(emscripten::val, (emscripten::val glyph_ranges), {
+        const size_t ln = glyph_ranges["length"].as<size_t>();
+        size_t sz = sizeof(ImWchar) * (ln + 1);
+        void* p = ImGui::MemAlloc(sz);
+        ImWchar* ch = (ImWchar*)p;
+        for (int i = 0; i < ln; i++)
+            ch[i] = glyph_ranges[i].as<ImWchar>();
+        ch[ln] = 0;
+        return emscripten::val((intptr_t) ch);
+    }), emscripten::allow_raw_pointers());
+    // No equivalent in ImGUI.
+    // Given a pointer to a glyph range return the actual glyph range.
+    emscripten::function("GlyphRangeExport", FUNCTION(emscripten::val, (emscripten::val glyph_ranges), {
+        const ImWchar* p = (ImWchar*) glyph_ranges.as<intptr_t>();
+        int length = 0;
+        for (const ImWchar* pp = p; *pp != 0; pp++)
+            length++;
+        return emscripten::val(emscripten::typed_memory_view((size_t)length, p));
+    }), emscripten::allow_raw_pointers());
+    // (Optional) Platform/OS interface for multi-viewport support
+    // Read comments around the ImGuiPlatformIO structure for more details.
+    // Note: You may use GetWindowViewport() to get the current viewport of the current window.
+    // IMGUI_API ImGuiPlatformIO&  GetPlatformIO();                                                // platform/renderer functions, for backend to setup + viewports list.
+    // IMGUI_API ImGuiViewport*    GetMainViewport();                                              // main viewport. same as GetPlatformIO().MainViewport == GetPlatformIO().Viewports[0].
+    emscripten::function("GetMainViewport", FUNCTION(emscripten::val, (), {
+        ImGuiViewport* p = ImGui::GetMainViewport();
+        return emscripten::val(p);
+    }), emscripten::allow_raw_pointers());
+    // IMGUI_API void              UpdatePlatformWindows();                                        // call in main loop. will call CreateWindow/ResizeWindow/etc. platform functions for each secondary viewport, and DestroyWindow for each inactive viewport.
+    // IMGUI_API void              RenderPlatformWindowsDefault(void* platform_render_arg = NULL, void* renderer_render_arg = NULL); // call in main loop. will call RenderWindow/SwapBuffers platform functions for each secondary viewport which doesn't have the ImGuiViewportFlags_Minimized flag set. May be reimplemented by user for custom rendering needs.
+    // IMGUI_API void              DestroyPlatformWindows();                                       // call DestroyWindow platform functions for all viewports. call from backend Shutdown() if you need to close platform windows before imgui shutdown. otherwise will be called by DestroyContext().
+    // IMGUI_API ImGuiViewport*    FindViewportByID(ImGuiID id);                                   // this is a helper for backends.
+    // IMGUI_API ImGuiViewport*    FindViewportByPlatformHandle(void* platform_handle);            // this is a helper for backends. the type platform_handle is decided by the backend (e.g. HWND, MyWindow*, GLFWwindow* etc.)
 }
