@@ -4640,3 +4640,5 @@ export function MemAlloc(sz: number): void { bind.MemAlloc(sz); }
 export function MemFree(ptr: any): void { bind.MemFree(ptr); }
 export function GlyphRangeAlloc(glyph_ranges: Uint16Array): number { return bind.GlyphRangeAlloc(glyph_ranges); }
 export function GlyphRangeExport(glyph_ranges: number): Uint16Array { return bind.GlyphRangeExport(glyph_ranges); }
+
+export function SetNextRefresh(delay_in_seconds: number, refresh_reason: string): void { bind.SetNextRefresh(delay_in_seconds, refresh_reason); }

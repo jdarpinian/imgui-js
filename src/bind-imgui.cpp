@@ -3178,6 +3178,9 @@ EMSCRIPTEN_BINDINGS(ImGui) {
             length++;
         return emscripten::val(emscripten::typed_memory_view((size_t)length, p));
     }), emscripten::allow_raw_pointers());
+
+    emscripten::function("SetNextRefresh", FUNCTION(void, (float delay_in_seconds, std::string refresh_reason), { ImGui::SetNextRefresh(delay_in_seconds, refresh_reason.c_str()); }));
+
     // (Optional) Platform/OS interface for multi-viewport support
     // Read comments around the ImGuiPlatformIO structure for more details.
     // Note: You may use GetWindowViewport() to get the current viewport of the current window.

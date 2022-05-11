@@ -2118,6 +2118,9 @@ export interface Module extends Emscripten.EmscriptenModule {
     MemFree(ptr: any): void;
     GlyphRangeAlloc(glyph_ranges: Uint16Array): number;
     GlyphRangeExport(glyph_ranges: number): Uint16Array;
+
+    SetNextRefresh(delay_in_seconds: number, refresh_reason: string): void;
+
     // (Optional) Platform/OS interface for multi-viewport support
     // Read comments around the ImGuiPlatformIO structure for more details.
     // Note: You may use GetWindowViewport() to get the current viewport of the current window.

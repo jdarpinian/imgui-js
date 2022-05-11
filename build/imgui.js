@@ -2271,6 +2271,8 @@ System.register(["bind-imgui", "./imconfig.js"], function (exports_1, context_1)
     exports_1("GlyphRangeAlloc", GlyphRangeAlloc);
     function GlyphRangeExport(glyph_ranges) { return bind.GlyphRangeExport(glyph_ranges); }
     exports_1("GlyphRangeExport", GlyphRangeExport);
+    function SetNextRefresh(delay_in_seconds, refresh_reason) { bind.SetNextRefresh(delay_in_seconds, refresh_reason); }
+    exports_1("SetNextRefresh", SetNextRefresh);
     return {
         setters: [
             function (Bind_1) {

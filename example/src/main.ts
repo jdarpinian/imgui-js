@@ -104,6 +104,7 @@ async function _init(): Promise<void> {
 
     StartUpImage();
     StartUpVideo();
+    
 
     if (typeof(window) !== "undefined") {
         window.requestAnimationFrame(_loop);

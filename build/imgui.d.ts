@@ -1695,3 +1695,4 @@ export declare function MemAlloc(sz: number): void;
 export declare function MemFree(ptr: any): void;
 export declare function GlyphRangeAlloc(glyph_ranges: Uint16Array): number;
 export declare function GlyphRangeExport(glyph_ranges: number): Uint16Array;
+export declare function SetNextRefresh(delay_in_seconds: number, refresh_reason: string): void;
