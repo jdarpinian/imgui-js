@@ -5,7 +5,7 @@ export interface XYZW extends XYZ { w: number; }
 export interface RGB { r: number; g: number; b: number; }
 export interface RGBA extends RGB { a: number; }
 
-import * as Bind from "bind-imgui";
+import  * as Bind from "../build/bind-imgui.js";
 export { Bind };
 
 let bind: Bind.Module;
@@ -844,8 +844,8 @@ export enum ImDrawListFlags
 export { ImU32 as U32 }
 export type ImU32 = Bind.ImU32;
 
-export { interface_ImVec2 } from "bind-imgui";
-export { reference_ImVec2 } from "bind-imgui";
+export { interface_ImVec2 } from "../build/bind-imgui.js";
+export { reference_ImVec2 } from "../build/bind-imgui.js";
 
 export { ImVec2 as Vec2 }
 export class ImVec2 implements Bind.interface_ImVec2 {
@@ -875,8 +875,8 @@ export class ImVec2 implements Bind.interface_ImVec2 {
     }
 }
 
-export { interface_ImVec4 } from "bind-imgui";
-export { reference_ImVec4 } from "bind-imgui";
+export { interface_ImVec4 } from "../build/bind-imgui.js";
+export { reference_ImVec4 } from "../build/bind-imgui.js";
 
 export { ImVec4 as Vec4 }
 export class ImVec4 implements Bind.interface_ImVec4 {
@@ -1202,8 +1202,8 @@ export class ImGuiStorage
 }
 
 
-export { interface_ImGuiWindowClass } from "bind-imgui";
-export { reference_ImGuiWindowClass } from "bind-imgui";
+export { interface_ImGuiWindowClass } from "../build/bind-imgui.js";
+export { reference_ImGuiWindowClass } from "../build/bind-imgui.js";
 
 export class ImGuiWindowClass implements Bind.interface_ImGuiWindowClass {
     constructor(public ClassId: number = 0,

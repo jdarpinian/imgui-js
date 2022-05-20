@@ -1,15 +1,12 @@
 {
   "compilerOptions": {
-    "target": "ES2016",
-    "module": "system",
+    "target": "ES2022",
+    "module": "ES2022",
     "strict": true,
     "sourceMap": true,
     "declaration": true,
     "outDir": "build",
     "baseUrl": ".",
-    "paths": {
-      "imgui-js": [ "../build/imgui" ],
-    }
   },
   "files": [
     "src/main.ts"

@@ -29,7 +29,5 @@ process.chdir(__dirname);
 module.require("@flyover/system");
 
 module.require("./system.config.js");
-
-System.import("main")
-.then(function (main) { main.default(); })
-.catch(console.error);
+import * as main from "./build/main.js"
+main.default();
