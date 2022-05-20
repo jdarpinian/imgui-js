@@ -1,7 +1,7 @@
 declare type int = number;
 declare type float = number;
 declare type size_t = number;
-import * as ImGui from "imgui-js";
+import * as ImGui from "../../build/imgui.js";
 export declare class MemoryEditor {
     Open: boolean;
     ReadOnly: boolean;

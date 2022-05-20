@@ -1,4 +1,4 @@
-import * as ImGui from "imgui-js";
+import * as ImGui from "../../build/imgui.js";
 export declare let gl: WebGL2RenderingContext | WebGLRenderingContext | null;
 export declare let ctx: CanvasRenderingContext2D | null;
 export declare function Init(value: HTMLCanvasElement | WebGL2RenderingContext | WebGLRenderingContext | CanvasRenderingContext2D | null): void;
