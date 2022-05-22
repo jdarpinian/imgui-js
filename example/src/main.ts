@@ -1,4 +1,4 @@
-import * as ImGui from "../../build/imgui.js";
+import * as ImGui from "../../src/imgui.js";
 import * as ImGui_Impl from "./imgui_impl.js";
 import { ShowDemoWindow } from "./imgui_demo.js";
 import { MemoryEditor } from "./imgui_memory_editor.js";

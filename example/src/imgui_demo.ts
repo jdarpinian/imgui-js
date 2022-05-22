@@ -82,7 +82,7 @@ type float = number;
 type double = number;
 
 // #include "imgui.h"
-import imgui, * as ImGui from "../../build/imgui.js";
+import imgui, * as ImGui from "../../src/imgui.js";
 // #ifndef IMGUI_DISABLE
 
 // System includes
