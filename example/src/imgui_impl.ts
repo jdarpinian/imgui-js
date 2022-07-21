@@ -3,6 +3,7 @@ import * as ImGui from "../../src/imgui.js";
 let clipboard_text: string = "";
 
 let canvas: HTMLCanvasElement | null = null;
+export let offscreenCanvas : OffscreenCanvas | null = null;
 
 export let gl: WebGL2RenderingContext | WebGLRenderingContext | null = null;
 let g_ShaderHandle: WebGLProgram | null = null;
@@ -178,12 +179,100 @@ function canvas_on_wheel(event: WheelEvent): void  {
     }
 }
 
+interface ForwardedPointerEvent {
+    movementX: number,
+    movementY: number,
+    clientX: number,
+    clientY: number,
+    button: number,
+    buttons: number,
+}
+
+interface ForwardedPointerRawUpdate {
+    type: "pointerrawupdate",
+    isPrimary: boolean,
+    pointerType: string,
+    events: ForwardedPointerEvent[],
+}
+
+interface InitMessage {
+    type: "InitMessage",
+    offscreenCanvas: OffscreenCanvas,
+}
+
+type WorkerMessage = ForwardedPointerRawUpdate | InitMessage;
+
+export function ReceiveMessageOnWorker(message: WorkerMessage): void {
+    switch (message.type) {
+        case "pointerrawupdate":
+            const io = ImGui.GetIO();
+            if (message.pointerType !== "mouse") {
+                console.warn("TODO: ignoring non mouse pointer events (e.g. touch, pen)");
+                return;
+            }
+            if (!message.isPrimary) {
+                console.warn("TODO: ignoring non primary pointer events");
+                return;
+            }
+            for (let event of message.events) {
+                if (event.movementX !== 0 || event.movementY !== 0)
+                    io.AddMousePosEvent(event.clientX, event.clientY);
+                if (event.button >= 0 && event.button < 5)
+                    io.AddMouseButtonEvent(event.button, !!((event.buttons >> event.button) & 1));
+            }
+            break;
+        case "InitMessage":
+            offscreenCanvas = message.offscreenCanvas;
+            Init(message.offscreenCanvas.getContext("webgl2", { alpha: false, desynchronized: true }));
+            break;
+        default:
+            throw new Error("Unknown event type: " + message.type);
+    }
+};
+
+export function ForwardCanvasAndEventsToWorker(canvas: HTMLCanvasElement, worker: Worker): void {
+    canvas.style.touchAction = "none"; // Disable browser handling of all panning and zooming gestures.
+    const forwardPointerEvent = (event : any) => {
+        event = event as PointerEvent; // typescript really hates it if the argument is typed as PointerEvent...
+        // TODO: forward the event without JSON serialization
+        // TODO: this doesn't work, need to serialize the events manually :(
+        const message : ForwardedPointerRawUpdate = {
+            type: "pointerrawupdate",
+            isPrimary: event.isPrimary,
+            pointerType: event.pointerType,
+            events: [],
+        };
+        for (let e of [event, ...event.getCoalescedEvents()]) {
+            message.events.push({
+                movementX: e.movementX,
+                movementY: e.movementY,
+                clientX: e.clientX,
+                clientY: e.clientY,
+                button: e.button,
+                buttons: e.buttons,
+            });
+            if (e.button >= 0) console.log('yes');
+        }
+        if (message.events.length == 0) {
+            console.error('No events in event.getCoalescedEvents()');
+        }
+        worker.postMessage(message);
+    }
+    canvas.addEventListener("pointerrawupdate", forwardPointerEvent);
+    canvas.addEventListener("pointerdown", forwardPointerEvent);
+    canvas.addEventListener("pointerup", forwardPointerEvent);
+    const offscreenCanvas = canvas.transferControlToOffscreen();
+    worker.postMessage({type: "InitMessage", offscreenCanvas }, [offscreenCanvas]);
+    // todo mouse wheel, keyboard, gamepad
+    // todo preventDefault everything
+}
+
 export function Init(value: HTMLCanvasElement | WebGL2RenderingContext | WebGLRenderingContext | CanvasRenderingContext2D | null): void {
     const io = ImGui.GetIO();
 
-    if (typeof(window) !== "undefined") {
+    if (typeof(window) !== "undefined" || (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope)) {
         io.BackendPlatformName = "imgui_impl_browser";
-        ImGui.LoadIniSettingsFromMemory(window.localStorage.getItem("imgui.ini") || "");
+        ImGui.LoadIniSettingsFromMemory(self.localStorage && self.localStorage.getItem("imgui.ini") || "");
     }
     else {
         io.BackendPlatformName = "imgui_impl_console";
@@ -228,24 +317,23 @@ export function Init(value: HTMLCanvasElement | WebGL2RenderingContext | WebGLRe
         window.addEventListener("gamepaddisconnected", window_on_gamepaddisconnected);
     }
 
-    if (typeof(window) !== "undefined") {
-        if (value instanceof(HTMLCanvasElement)) {
+    if (io.BackendPlatformName === "imgui_impl_browser") {
+        if (self.HTMLCanvasElement && value instanceof(HTMLCanvasElement)) {
             canvas = value;
             value = canvas.getContext("webgl2", { alpha: false }) || canvas.getContext("webgl", { alpha: false }) || canvas.getContext("2d");
+        } else {
+            canvas = canvas || (self.HTMLCanvasElement && value.canvas instanceof HTMLCanvasElement ? value.canvas : null);
         }
         if (typeof WebGL2RenderingContext !== "undefined" && value instanceof(WebGL2RenderingContext)) {
             io.BackendRendererName = "imgui_impl_webgl2";
-            canvas = canvas || value.canvas as HTMLCanvasElement;
             gl = value;
         }
         else if (typeof WebGLRenderingContext !== "undefined" && value instanceof(WebGLRenderingContext)) {
             io.BackendRendererName = "imgui_impl_webgl";
-            canvas = canvas || value.canvas as HTMLCanvasElement;
             gl = value;
         }
         else if (typeof CanvasRenderingContext2D !== "undefined" && value instanceof(CanvasRenderingContext2D)) {
             io.BackendRendererName = "imgui_impl_2d";
-            canvas = canvas || value.canvas;
             ctx = value;
         }
     }
@@ -336,8 +424,8 @@ export function NewFrame(time: number): void {
         }
     }
 
-    const w: number = canvas && canvas.scrollWidth || 640;
-    const h: number = canvas && canvas.scrollHeight || 480;
+    const w: number = canvas && canvas.scrollWidth || (offscreenCanvas && offscreenCanvas.width) || 640;
+    const h: number = canvas && canvas.scrollHeight || (offscreenCanvas && offscreenCanvas.height) || 480;
     const display_w: number = gl && gl.drawingBufferWidth || w;
     const display_h: number = gl && gl.drawingBufferHeight || h;
     io.DisplaySize.x = w;

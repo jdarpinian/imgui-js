@@ -2554,6 +2554,20 @@ export class ImGuiIO {
         },
     });
     // Functions
+    // IMGUI_API void  AddKeyEvent(ImGuiKey key, bool down);       // Queue a new key down/up event. Key should be "translated" (as in, generally ImGuiKey_A matches the key end-user would use to emit an 'A' character)
+    AddKeyEvent(key, down) { this.native.AddKeyEvent(key, down); }
+    // IMGUI_API void  AddKeyAnalogEvent(ImGuiKey key, bool down, float v);    // Queue a new key down/up event for analog values (e.g. ImGuiKey_Gamepad_ values). Dead-zones should be handled by the backend.
+    AddKeyAnalogEvent(key, down, v) { this.native.AddKeyAnalogEvent(key, down, v); }
+    // IMGUI_API void  AddMousePosEvent(float x, float y);                     // Queue a mouse position update. Use -FLT_MAX,-FLT_MAX to signify no mouse (e.g. app not focused and not hovered)
+    AddMousePosEvent(x, y) { this.native.AddMousePosEvent(x, y); }
+    // IMGUI_API void  AddMouseButtonEvent(int button, bool down);             // Queue a mouse button change
+    AddMouseButtonEvent(button, down) { this.native.AddMouseButtonEvent(button, down); }
+    // IMGUI_API void  AddMouseWheelEvent(float wh_x, float wh_y);             // Queue a mouse wheel update
+    AddMouseWheelEvent(wh_x, wh_y) { this.native.AddMouseWheelEvent(wh_x, wh_y); }
+    // IMGUI_API void  AddMouseViewportEvent(ImGuiID id);                      // Queue a mouse hovered viewport. Requires backend to set ImGuiBackendFlags_HasMouseHoveredViewport to call this (for multi-viewport support).
+    AddMouseViewportEvent(id) { this.native.AddMouseViewportEvent(id); }
+    // IMGUI_API void  AddFocusEvent(bool focused);                            // Queue a gain/loss of focus for the application (generally based on OS/platform focus of your window)
+    AddFocusEvent(focused) { this.native.AddFocusEvent(focused); }
     // IMGUI_API void AddInputCharacter(ImWchar c);                        // Add new character into InputCharacters[]
     AddInputCharacter(c) { this.native.AddInputCharacter(c); }
     // IMGUI_API void  AddInputCharacterUTF16(ImWchar16 c);        // Queue new character input from an UTF-16 character, it can be a surrogate
@@ -2562,6 +2576,10 @@ export class ImGuiIO {
     AddInputCharactersUTF8(utf8_chars) { this.native.AddInputCharactersUTF8(utf8_chars); }
     // inline void    ClearInputCharacters() { InputCharacters[0] = 0; }   // Clear the text input buffer manually
     ClearInputCharacters() { this.native.ClearInputCharacters(); }
+    // IMGUI_API void  ClearInputKeys();                                       // [Internal] Release all keys
+    ClearInputKeys() { this.native.ClearInputKeys(); }
+    // IMGUI_API void  SetKeyEventNativeData(ImGuiKey key, int native_keycode, int native_scancode, int native_legacy_index = -1); // [Optional] Specify index for legacy <1.87 IsKeyXXX() functions with native indices + specify native keycode, scancode.
+    SetKeyEventNativeData(key, native_keycode, native_scancode, native_legacy_index = -1) { this.native.SetKeyEventNativeData(key, native_keycode, native_scancode, native_legacy_index); }
     //------------------------------------------------------------------
     // Output - Retrieve after calling NewFrame()
     //------------------------------------------------------------------

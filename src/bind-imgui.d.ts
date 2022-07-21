@@ -952,23 +952,39 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // Docking options (when ImGuiConfigFlags_DockingEnable is set)
     // bool        ConfigDockingNoSplit;           // = false          // Simplified docking mode: disable window splitting, so docking is limited to merging multiple windows together into tab-bars.
     ConfigDockingNoSplit: boolean;
+    // bool        ConfigDockingWithShift;         // = false          // Enable docking with holding Shift key (reduce visual noise, allows dropping in wider space)
+    ConfigDockingWithShift: boolean;
     // bool        ConfigDockingAlwaysTabBar;      // = false          // [BETA] [FIXME: This currently creates regression with auto-sizing and general overhead] Make every single floating window display within a docking node.
     ConfigDockingAlwaysTabBar: boolean;
     // bool        ConfigDockingTransparentPayload;// = false          // [BETA] Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if rendering of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge.
     ConfigDockingTransparentPayload: boolean;
 
+    // Viewport options (when ImGuiConfigFlags_ViewportsEnable is set)
+    // bool        ConfigViewportsNoAutoMerge;     // = false;         // Set to make all floating imgui windows always create their own viewport. Otherwise, they are merged into the main host viewports when overlapping it. May also set ImGuiViewportFlags_NoAutoMerge on individual viewport.
+    ConfigViewportsNoAutoMerge: boolean;
+    // bool        ConfigViewportsNoTaskBarIcon;   // = false          // Disable default OS task bar icon flag for secondary viewports. When a viewport doesn't want a task bar icon, ImGuiViewportFlags_NoTaskBarIcon will be set on it.
+    ConfigViewportsNoTaskBarIcon: boolean;
+    // bool        ConfigViewportsNoDecoration;    // = true           // Disable default OS window decoration flag for secondary viewports. When a viewport doesn't want window decorations, ImGuiViewportFlags_NoDecoration will be set on it. Enabling decoration can create subsequent issues at OS levels (e.g. minimum window size).
+    ConfigViewportsNoDecoration: boolean;
+    // bool        ConfigViewportsNoDefaultParent; // = false          // Disable default OS parenting to main viewport for secondary viewports. By default, viewports are marked with ParentViewportId = <main_viewport>, expecting the platform backend to setup a parent/child relationship between the OS windows (some backend may ignore this). Set to true if you want the default to be 0, then all viewports will be top-level OS windows.
+    ConfigViewportsNoDefaultParent: boolean;
+    
     // Advanced/subtle behaviors
     // bool        MouseDrawCursor;                // Request ImGui to draw a mouse cursor for you (if you are on a platform without a mouse cursor).
     MouseDrawCursor: boolean;
     // bool          OptMacOSXBehaviors;       // = defined(__APPLE__) // OS X style: Text editing cursor movement using Alt instead of Ctrl, Shortcuts using Cmd/Super instead of Ctrl, Line/Text Start and End using Cmd+Arrows instead of Home/End, Double click selects by word instead of selecting whole text, Multi-selection in lists uses Cmd/Super instead of Ctrl
     ConfigMacOSXBehaviors: boolean;
+    // bool        ConfigInputTrickleEventQueue;   // = true           // Enable input queue trickling: some types of events submitted during the same frame (e.g. button down + up) will be spread over multiple frames, improving interactions with low framerates.
+    ConfigInputTrickleEventQueue: boolean;
     // bool          ConfigInputTextCursorBlink;   // = true               // Enable blinking cursor, for users who consider it annoying.
     ConfigInputTextCursorBlink: boolean;
+    // bool        ConfigDragClickToInputText;     // = false          // [BETA] Enable turning DragXXX widgets into text input with a simple mouse click-release (without moving). Not desirable on devices without a keyboard.
     ConfigDragClickToInputText: boolean;
     // bool          ConfigWindowsResizeFromEdges; // = false          // [BETA] Enable resizing of windows from their edges and from the lower-left corner. This requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback. (This used to be the ImGuiWindowFlags_ResizeFromAnySide flag)
     ConfigWindowsResizeFromEdges: boolean;
     // bool        ConfigWindowsMoveFromTitleBarOnly;// = false        // [BETA] Set to true to only allow moving windows when clicked+dragged from the title bar. Windows without a title bar are not affected.
     ConfigWindowsMoveFromTitleBarOnly: boolean;
+    // float       ConfigMemoryCompactTimer;       // = 60.0f          // Timer (in seconds) to free transient windows/tables memory buffers when unused. Set to -1.0f to disable.
     ConfigMemoryCompactTimer: number;
 
     //------------------------------------------------------------------
@@ -1002,34 +1018,23 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     // void*       ImeWindowHandle;            // (Windows) Set this to your HWND to get automatic IME cursor positioning.
 
     //------------------------------------------------------------------
-    // Input - Fill before calling NewFrame()
+    // Input - Call before calling NewFrame()
     //------------------------------------------------------------------
 
-    // ImVec2      MousePos;                       // Mouse position, in pixels. Set to ImVec2(-FLT_MAX,-FLT_MAX) if mouse is unavailable (on another screen, etc.)
-    readonly MousePos: reference_ImVec2;
-    // bool        MouseDown[5];                   // Mouse buttons: left, right, middle + extras. ImGui itself mostly only uses left button (BeginPopupContext** are using right button). Others buttons allows us to track if the mouse is being used by your application + available to user as a convenience via IsMouse** API.
-    _getAt_MouseDown(index: number): boolean;
-    _setAt_MouseDown(index: number, value: boolean): boolean;
-    // float       MouseWheel;                     // Mouse wheel: 1 unit scrolls about 5 lines text.
-    MouseWheel: number;
-    // float       MouseWheelH;                    // Mouse wheel (Horizontal). Most users don't have a mouse with an horizontal wheel, may not be filled by all back ends.
-    MouseWheelH: number;
-    // bool        KeyCtrl;                        // Keyboard modifier pressed: Control
-    KeyCtrl: boolean;
-    // bool        KeyShift;                       // Keyboard modifier pressed: Shift
-    KeyShift: boolean;
-    // bool        KeyAlt;                         // Keyboard modifier pressed: Alt
-    KeyAlt: boolean;
-    // bool        KeySuper;                       // Keyboard modifier pressed: Cmd/Super/Windows
-    KeySuper: boolean;
-    // bool        KeysDown[512];                  // Keyboard keys that are pressed (ideally left in the "native" order your engine has access to keyboard keys, so you can use your own defines/enums for keys).
-    _getAt_KeysDown(index: number): boolean;
-    _setAt_KeysDown(index: number, value: boolean): boolean;
-    // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
-    _getAt_NavInputs(index: number): number;
-    _setAt_NavInputs(index: number, value: number): boolean;
-    
-    // Functions
+    // IMGUI_API void  AddKeyEvent(ImGuiKey key, bool down);       // Queue a new key down/up event. Key should be "translated" (as in, generally ImGuiKey_A matches the key end-user would use to emit an 'A' character)
+    AddKeyEvent(key: ImGuiKey, down: boolean): void;
+    // IMGUI_API void  AddKeyAnalogEvent(ImGuiKey key, bool down, float v);    // Queue a new key down/up event for analog values (e.g. ImGuiKey_Gamepad_ values). Dead-zones should be handled by the backend.
+    AddKeyAnalogEvent(key: ImGuiKey, down: boolean, v: number): void;
+    // IMGUI_API void  AddMousePosEvent(float x, float y);                     // Queue a mouse position update. Use -FLT_MAX,-FLT_MAX to signify no mouse (e.g. app not focused and not hovered)
+    AddMousePosEvent(x: number, y: number): void;
+    // IMGUI_API void  AddMouseButtonEvent(int button, bool down);             // Queue a mouse button change
+    AddMouseButtonEvent(button: number, down: boolean): void;
+    // IMGUI_API void  AddMouseWheelEvent(float wh_x, float wh_y);             // Queue a mouse wheel update
+    AddMouseWheelEvent(wh_x: number, wh_y: number): void;
+    // IMGUI_API void  AddMouseViewportEvent(ImGuiID id);                      // Queue a mouse hovered viewport. Requires backend to set ImGuiBackendFlags_HasMouseHoveredViewport to call this (for multi-viewport support).
+    AddMouseViewportEvent(id: ImGuiID): void;
+    // IMGUI_API void  AddFocusEvent(bool focused);                            // Queue a gain/loss of focus for the application (generally based on OS/platform focus of your window)
+    AddFocusEvent(focused: boolean): void;
     // IMGUI_API void AddInputCharacter(ImWchar c);                        // Add new character into InputCharacters[]
     AddInputCharacter(c: number): void;
     // IMGUI_API void  AddInputCharacterUTF16(ImWchar16 c);        // Queue new character input from an UTF-16 character, it can be a surrogate
@@ -1038,6 +1043,10 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     AddInputCharactersUTF8(utf8_chars: string): void;
     // inline void    ClearInputCharacters() { InputCharacters[0] = 0; }   // Clear the text input buffer manually
     ClearInputCharacters(): void;
+    // IMGUI_API void  ClearInputKeys();                                       // [Internal] Release all keys
+    ClearInputKeys(): void;
+    // IMGUI_API void  SetKeyEventNativeData(ImGuiKey key, int native_keycode, int native_scancode, int native_legacy_index = -1); // [Optional] Specify index for legacy <1.87 IsKeyXXX() functions with native indices + specify native keycode, scancode.
+    SetKeyEventNativeData(key: ImGuiKey, native_keycode: number, native_scancode: number, native_legacy_index: number): void;
 
     //------------------------------------------------------------------
     // Output - Retrieve after calling NewFrame()
@@ -1075,6 +1084,30 @@ export interface reference_ImGuiIO extends Emscripten.EmscriptenClassReference {
     //------------------------------------------------------------------
     // [Internal] ImGui will maintain those fields. Forward compatibility not guaranteed!
     //------------------------------------------------------------------
+
+    // ImVec2      MousePos;                       // Mouse position, in pixels. Set to ImVec2(-FLT_MAX,-FLT_MAX) if mouse is unavailable (on another screen, etc.)
+    readonly MousePos: reference_ImVec2;
+    // bool        MouseDown[5];                   // Mouse buttons: left, right, middle + extras. ImGui itself mostly only uses left button (BeginPopupContext** are using right button). Others buttons allows us to track if the mouse is being used by your application + available to user as a convenience via IsMouse** API.
+    _getAt_MouseDown(index: number): boolean;
+    _setAt_MouseDown(index: number, value: boolean): boolean;
+    // float       MouseWheel;                     // Mouse wheel: 1 unit scrolls about 5 lines text.
+    MouseWheel: number;
+    // float       MouseWheelH;                    // Mouse wheel (Horizontal). Most users don't have a mouse with an horizontal wheel, may not be filled by all back ends.
+    MouseWheelH: number;
+    // bool        KeyCtrl;                        // Keyboard modifier pressed: Control
+    KeyCtrl: boolean;
+    // bool        KeyShift;                       // Keyboard modifier pressed: Shift
+    KeyShift: boolean;
+    // bool        KeyAlt;                         // Keyboard modifier pressed: Alt
+    KeyAlt: boolean;
+    // bool        KeySuper;                       // Keyboard modifier pressed: Cmd/Super/Windows
+    KeySuper: boolean;
+    // bool        KeysDown[512];                  // Keyboard keys that are pressed (ideally left in the "native" order your engine has access to keyboard keys, so you can use your own defines/enums for keys).
+    _getAt_KeysDown(index: number): boolean;
+    _setAt_KeysDown(index: number, value: boolean): boolean;
+    // float       NavInputs[ImGuiNavInput_COUNT]; // Gamepad inputs (keyboard keys will be auto-mapped and be written here by ImGui::NewFrame)
+    _getAt_NavInputs(index: number): number;
+    _setAt_NavInputs(index: number, value: number): boolean;
 
     WantCaptureMouseUnlessPopupClose: boolean;
     // ImVec2      MousePosPrev;               // Previous mouse position temporary storage (nb: not for public use, set to MousePos in NewFrame())
