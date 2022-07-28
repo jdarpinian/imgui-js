@@ -320,7 +320,13 @@ export function Init(value: HTMLCanvasElement | WebGL2RenderingContext | WebGLRe
     if (io.BackendPlatformName === "imgui_impl_browser") {
         if (self.HTMLCanvasElement && value instanceof(HTMLCanvasElement)) {
             canvas = value;
-            value = canvas.getContext("webgl2", { alpha: false }) || canvas.getContext("webgl", { alpha: false }) || canvas.getContext("2d");
+            const contextAttributes : WebGLContextAttributes = {
+                alpha: false,
+                desynchronized: true,
+                stencil: false,
+                antialias: false,
+            };
+            value = canvas.getContext("webgl2", contextAttributes) || canvas.getContext("webgl", contextAttributes) || canvas.getContext("2d");
         } else {
             canvas = canvas || (self.HTMLCanvasElement && value.canvas instanceof HTMLCanvasElement ? value.canvas : null);
         }
