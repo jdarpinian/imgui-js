@@ -4661,3 +4661,7 @@ export function GlyphRangeAlloc(glyph_ranges: Uint16Array): number { return bind
 export function GlyphRangeExport(glyph_ranges: number): Uint16Array { return bind.GlyphRangeExport(glyph_ranges); }
 
 export function SetNextRefresh(delay_in_seconds: number, refresh_reason: string): void { bind.SetNextRefresh(delay_in_seconds, refresh_reason); }
+
+// EXTRA MISC STUFF FROM imgui_internal.h
+// IMGUI_API void          SetNextWindowScroll(const ImVec2& scroll); // Use -1.0f on one axis to leave as-is
+export function SetNextWindowScroll(scroll : Readonly<Bind.interface_ImVec2>): void { bind.SetNextWindowScroll(scroll); }

@@ -1,4 +1,5 @@
 #include "imgui.h"
+#include "imgui_internal.h"
 
 #ifndef __FLT_MAX__
 #define __FLT_MAX__ 3.40282346638528859812e+38F
@@ -1984,14 +1985,14 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void          SetScrollFromPosY(float local_y, float center_y_ratio = 0.5f);  // adjust scrolling amount to make given position visible. Generally GetCursorStartPos() + offset to compute a valid position.
     emscripten::function("GetScrollX", &ImGui::GetScrollX);
     emscripten::function("GetScrollY", &ImGui::GetScrollY);
-    emscripten::function("SetScrollX", &ImGui::SetScrollX);
-    emscripten::function("SetScrollY", &ImGui::SetScrollY);
+    emscripten::function("SetScrollX", (void(*)(float))&ImGui::SetScrollX); // These function pointer casts are necessary to select the correct overload when imgui_internal.h is included.
+    emscripten::function("SetScrollY", (void(*)(float))&ImGui::SetScrollY);
     emscripten::function("GetScrollMaxX", &ImGui::GetScrollMaxX);
     emscripten::function("GetScrollMaxY", &ImGui::GetScrollMaxY);
     emscripten::function("SetScrollHereX", &ImGui::SetScrollHereX);
     emscripten::function("SetScrollHereY", &ImGui::SetScrollHereY);
-    emscripten::function("SetScrollFromPosX", &ImGui::SetScrollFromPosX);
-    emscripten::function("SetScrollFromPosY", &ImGui::SetScrollFromPosY);
+    emscripten::function("SetScrollFromPosX", (void(*)(float, float))&ImGui::SetScrollFromPosX);
+    emscripten::function("SetScrollFromPosY", (void(*)(float, float))&ImGui::SetScrollFromPosY);
 
     // Parameters stacks (shared)
     // IMGUI_API void          PushFont(ImFont* font);                                         // use NULL as a shortcut to push default font
@@ -3195,4 +3196,8 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // IMGUI_API void              DestroyPlatformWindows();                                       // call DestroyWindow platform functions for all viewports. call from backend Shutdown() if you need to close platform windows before imgui shutdown. otherwise will be called by DestroyContext().
     // IMGUI_API ImGuiViewport*    FindViewportByID(ImGuiID id);                                   // this is a helper for backends.
     // IMGUI_API ImGuiViewport*    FindViewportByPlatformHandle(void* platform_handle);            // this is a helper for backends. the type platform_handle is decided by the backend (e.g. HWND, MyWindow*, GLFWwindow* etc.)
+
+    // EXTRA MISC STUFF FROM imgui_internal.h
+    // IMGUI_API void          SetNextWindowScroll(const ImVec2& scroll); // Use -1.0f on one axis to leave as-is
+    emscripten::function("SetNextWindowScroll", FUNCTION(void, (emscripten::val size), { ImGui::SetNextWindowScroll(import_ImVec2(size)); }));
 }
