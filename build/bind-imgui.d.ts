@@ -114,6 +114,12 @@ export type ImU32 = number;
 
 export class WrapImGuiContext extends Emscripten.EmscriptenClass {}
 
+export class MemoryEditor extends Emscripten.EmscriptenClass {
+    public constructor();
+    public DrawContents(id : string, ptr : number, size : number) : void;
+    public DrawWindow(id : string, ptr : number, size : number) : void;
+}
+
 export interface interface_ImVec2 {
     x: number;
     y: number;
@@ -1159,6 +1165,8 @@ export interface Module extends Emscripten.EmscriptenModule {
 
     ImGuiListClipper: { new(): ImGuiListClipper; };
     ImGuiStyle: { new(): ImGuiStyle; };
+
+    MemoryEditor: { new(): MemoryEditor; };
 
     // Context creation and access
     // Each context create its own ImFontAtlas by default. You may instance one yourself and pass it to CreateContext() to share a font atlas between imgui contexts.

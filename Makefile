@@ -17,6 +17,7 @@ IMGUI_SOURCE_HXX += $(IMGUI_PATH)/imgui_internal.h
 IMGUI_SOURCE_HXX += $(IMGUI_PATH)/imstb_rectpack.h
 IMGUI_SOURCE_HXX += $(IMGUI_PATH)/imstb_textedit.h
 IMGUI_SOURCE_HXX += $(IMGUI_PATH)/imstb_truetype.h
+IMGUI_SOURCE_HXX += src/imgui_memory_editor.h
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui.cpp
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_demo.cpp
 IMGUI_SOURCE_CXX += $(IMGUI_PATH)/imgui_draw.cpp
@@ -40,7 +41,9 @@ BIND_IMGUI_OUTPUT_JS = build/bind-imgui.js
 # FLAGS += -s ASSERTIONS=1
 # FLAGS += -s SAFE_HEAP=1
 
-FLAGS += -Os
+FLAGS += -O0 -g
+
+# FLAGS += -Os
 
 FLAGS += -D "IM_ASSERT(EXPR)=((void)(EXPR))"
 

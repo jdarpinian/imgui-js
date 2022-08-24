@@ -1306,6 +1306,37 @@ export class ImGuiTableSortSpecs {
     get SpecsDirty() { return this.native.SpecsDirty; }
     set SpecsDirty(value) { this.native.SpecsDirty = value; }
 }
+const memoryEditorFinalizer = new FinalizationRegistry((allocation) => bind._free(allocation.pointer));
+export class MemoryEditor {
+    _native = new bind.MemoryEditor();
+    allocation = { pointer: 0, size: 0, };
+    buffer = new ArrayBuffer(0);
+    constructor() {
+        memoryEditorFinalizer.register(this, this.allocation);
+        this.SetContents(this.buffer, true);
+    }
+    DrawContents(id, buffer, bufferContentModified = false) {
+        this.SetContents(buffer, bufferContentModified);
+        this._native.DrawContents(id, this.allocation.pointer, this.allocation.size);
+    }
+    DrawWindow(id, buffer, bufferContentModified = false) { this._native.DrawWindow(id, this.allocation.pointer, this.allocation.size); }
+    SetContents(buffer, bufferContentModified) {
+        if (this.allocation.size != buffer.byteLength) {
+            if (this.allocation.pointer)
+                bind._free(this.allocation.pointer);
+            this.allocation.pointer = bind._malloc(buffer.byteLength);
+            this.allocation.size = buffer.byteLength;
+            if (!this.allocation.pointer)
+                throw "failed allocation";
+        }
+        if (buffer != this.buffer) {
+            bufferContentModified = true;
+            this.buffer = buffer;
+        }
+        if (bufferContentModified)
+            bind.HEAPU8.set(buffer instanceof ArrayBuffer ? new Uint8Array(buffer) : new Uint8Array(buffer.buffer), this.allocation.pointer);
+    }
+}
 export { ImGuiListClipper as ListClipper };
 export class ImGuiListClipper {
     _native = null;
@@ -4493,4 +4524,7 @@ export function MemFree(ptr) { bind.MemFree(ptr); }
 export function GlyphRangeAlloc(glyph_ranges) { return bind.GlyphRangeAlloc(glyph_ranges); }
 export function GlyphRangeExport(glyph_ranges) { return bind.GlyphRangeExport(glyph_ranges); }
 export function SetNextRefresh(delay_in_seconds, refresh_reason) { bind.SetNextRefresh(delay_in_seconds, refresh_reason); }
+// EXTRA MISC STUFF FROM imgui_internal.h
+// IMGUI_API void          SetNextWindowScroll(const ImVec2& scroll); // Use -1.0f on one axis to leave as-is
+export function SetNextWindowScroll(scroll) { bind.SetNextWindowScroll(scroll); }
 //# sourceMappingURL=imgui.js.map

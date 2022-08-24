@@ -1,5 +1,6 @@
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "imgui_memory_editor.h"
 
 #ifndef __FLT_MAX__
 #define __FLT_MAX__ 3.40282346638528859812e+38F
@@ -3200,4 +3201,16 @@ EMSCRIPTEN_BINDINGS(ImGui) {
     // EXTRA MISC STUFF FROM imgui_internal.h
     // IMGUI_API void          SetNextWindowScroll(const ImVec2& scroll); // Use -1.0f on one axis to leave as-is
     emscripten::function("SetNextWindowScroll", FUNCTION(void, (emscripten::val size), { ImGui::SetNextWindowScroll(import_ImVec2(size)); }));
+}
+
+#include <vector>
+
+EMSCRIPTEN_BINDINGS(memory_editor) {
+    emscripten::class_<MemoryEditor>("MemoryEditor")
+        .constructor<>()
+        .function("GotoAddrAndHighlight", &MemoryEditor::GotoAddrAndHighlight)
+        .function("DrawWindow", &MemoryEditor::DrawWindow, emscripten::allow_raw_pointers())
+        .function("DrawContents", &MemoryEditor::DrawContents, emscripten::allow_raw_pointers());
+
+    emscripten::register_vector<uint8_t>("MemoryEditorBuffer");
 }

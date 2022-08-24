@@ -1428,6 +1428,42 @@ export class ImGuiTableSortSpecs
     set SpecsDirty(value: boolean) { this.native.SpecsDirty = value; }
 }
 
+const memoryEditorFinalizer = new FinalizationRegistry(
+    (allocation : {pointer: number, size: number}) => bind._free(allocation.pointer));
+
+export class MemoryEditor
+{
+    private _native = new bind.MemoryEditor();
+    private allocation = { pointer: 0, size: 0, };
+    private buffer : ArrayBuffer | ArrayBufferView = new ArrayBuffer(0);
+
+    public constructor() {
+        memoryEditorFinalizer.register(this, this.allocation);
+        this.SetContents(this.buffer, true);
+    }
+
+    public DrawContents(id : string, buffer : ArrayBuffer | ArrayBufferView, bufferContentModified : boolean = false) : void {
+        this.SetContents(buffer, bufferContentModified);
+        this._native.DrawContents(id, this.allocation.pointer, this.allocation.size);
+    }
+    public DrawWindow(id : string, buffer : ArrayBuffer | ArrayBufferView, bufferContentModified : boolean = false) : void { this._native.DrawWindow(id, this.allocation.pointer, this.allocation.size); }
+
+    private SetContents(buffer : ArrayBuffer | ArrayBufferView, bufferContentModified : boolean) : void {
+        if (this.allocation.size != buffer.byteLength) {
+            if (this.allocation.pointer) bind._free(this.allocation.pointer);
+            this.allocation.pointer = bind._malloc(buffer.byteLength);
+            this.allocation.size = buffer.byteLength;
+            if (!this.allocation.pointer) throw "failed allocation";
+        }
+        if (buffer != this.buffer) {
+            bufferContentModified = true;
+            this.buffer = buffer;
+        }
+        if (bufferContentModified)
+            bind.HEAPU8.set(buffer instanceof ArrayBuffer ? new Uint8Array(buffer) : new Uint8Array(buffer.buffer), this.allocation.pointer);
+    }
+}
+
 export { ImGuiListClipper as ListClipper }
 export class ImGuiListClipper
 {

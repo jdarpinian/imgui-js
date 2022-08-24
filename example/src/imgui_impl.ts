@@ -869,6 +869,7 @@ export function CreateDeviceObjects(): void {
         "varying vec2 Frag_UV;",
         "varying vec4 Frag_Color;",
         "void main() {",
+        "   if (Frag_UV.x < 0. || Frag_UV.y < 0. || Frag_UV.x > 1. || Frag_UV.y > 1.) discard;",
         "	gl_FragColor = Frag_Color * texture2D(Texture, Frag_UV);",
         "}",
     ];

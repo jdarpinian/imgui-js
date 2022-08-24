@@ -814,6 +814,15 @@ export declare class ImGuiTableSortSpecs {
     get SpecsDirty(): boolean;
     set SpecsDirty(value: boolean);
 }
+export declare class MemoryEditor {
+    private _native;
+    private allocation;
+    private buffer;
+    constructor();
+    DrawContents(id: string, buffer: ArrayBuffer | ArrayBufferView, bufferContentModified?: boolean): void;
+    DrawWindow(id: string, buffer: ArrayBuffer | ArrayBufferView, bufferContentModified?: boolean): void;
+    private SetContents;
+}
 export { ImGuiListClipper as ListClipper };
 export declare class ImGuiListClipper {
     private _native;
@@ -1705,3 +1714,4 @@ export declare function MemFree(ptr: any): void;
 export declare function GlyphRangeAlloc(glyph_ranges: Uint16Array): number;
 export declare function GlyphRangeExport(glyph_ranges: number): Uint16Array;
 export declare function SetNextRefresh(delay_in_seconds: number, refresh_reason: string): void;
+export declare function SetNextWindowScroll(scroll: Readonly<Bind.interface_ImVec2>): void;
