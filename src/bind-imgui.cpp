@@ -3209,8 +3209,13 @@ EMSCRIPTEN_BINDINGS(memory_editor) {
     emscripten::class_<MemoryEditor>("MemoryEditor")
         .constructor<>()
         .function("GotoAddrAndHighlight", &MemoryEditor::GotoAddrAndHighlight)
-        .function("DrawWindow", &MemoryEditor::DrawWindow, emscripten::allow_raw_pointers())
-        .function("DrawContents", &MemoryEditor::DrawContents, emscripten::allow_raw_pointers());
+        .function("DrawWindow", FUNCTION(void, (MemoryEditor& that, const std::string title, intptr_t mem_data, size_t mem_size), {
+            that.DrawWindow(title.c_str(), (void*)mem_data, mem_size);
+        }))
+        .function("DrawContents", FUNCTION(void, (MemoryEditor& that, intptr_t mem_data, size_t mem_size), {
+            that.DrawContents((void*)mem_data, mem_size);
+        }))
+        ;
 
     emscripten::register_vector<uint8_t>("MemoryEditorBuffer");
 }
