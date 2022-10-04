@@ -14,6 +14,7 @@ void ImGui::ShowFontSelector(const char*) {}
 #endif
 
 #include <emscripten/bind.h>
+#include <emscripten/version.h>
 
 #define FUNCTION(RET, ARGS, CODE...) \
     emscripten::optional_override([] ARGS -> RET { CODE })

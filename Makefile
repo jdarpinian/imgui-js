@@ -41,9 +41,13 @@ BIND_IMGUI_OUTPUT_JS = build/bind-imgui.js
 # FLAGS += -s ASSERTIONS=1
 # FLAGS += -s SAFE_HEAP=1
 
-FLAGS += -O0 -g
 
-# FLAGS += -Os
+# release optimizations w/ no debug info
+FLAGS += -Oz -flto --closure 1
+
+# https://developer.chrome.com/blog/faster-wasm-debugging/
+# can't use -Oz, crashes :(
+# FLAGS += -O0 -flto -gseparate-dwarf #  -gdwarf-5 -gpubnames these crash :(
 
 FLAGS += -D "IM_ASSERT(EXPR)=((void)(EXPR))"
 
@@ -59,7 +63,7 @@ BIND_FLAGS += -s EXPORT_BINDINGS=1
 # BIND_FLAGS += -s EXPORT_ALL=1
 # BIND_FLAGS += -s MEM_INIT_METHOD=0
 # BIND_FLAGS += --memory-init-file 0
-BIND_FLAGS += -s SINGLE_FILE=1
+# BIND_FLAGS += -s SINGLE_FILE=1
 # BIND_FLAGS += -s BINARYEN_ASYNC_COMPILATION=0
 # BIND_FLAGS += -s BINARYEN_METHOD=\"native-wasm,asmjs\"
 # BIND_FLAGS += -s BINARYEN_METHOD=\"interpret-asm2wasm,asmjs\"
@@ -69,6 +73,7 @@ BIND_FLAGS += -s SINGLE_FILE=1
 BIND_FLAGS += -s EMBIND_STD_STRING_IS_UTF8=1
 
 build-bind-imgui: build/emscripten.d.ts build/bind-imgui.d.ts build/bind-imgui.js
+	emstrip --no-strip-all --remove-section=name build/bind-imgui.wasm
 
 clean-bind-imgui:
 	rm -f $(IMGUI_OUTPUT_BC)
