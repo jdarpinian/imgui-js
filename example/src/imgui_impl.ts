@@ -144,7 +144,7 @@ function canvas_on_pointerdown(event: PointerEvent): void  {
     const io = ImGui.GetIO();
     io.MousePos.x = event.offsetX;
     io.MousePos.y = event.offsetY;
-    io.MouseDown[mouse_button_map[event.button]] = true;
+    io.AddMouseButtonEvent(mouse_button_map[event.button], true);
     // if (io.WantCaptureMouse) {
     //     event.preventDefault();
     // }
@@ -158,7 +158,7 @@ function canvas_on_contextmenu(event: Event): void  {
 
 function canvas_on_pointerup(event: PointerEvent): void  {
     const io = ImGui.GetIO();
-    io.MouseDown[mouse_button_map[event.button]] = false;
+    io.AddMouseButtonEvent(mouse_button_map[event.button], false);
     if (io.WantCaptureMouse) {
         event.preventDefault();
     }
