@@ -116,8 +116,8 @@ export class WrapImGuiContext extends Emscripten.EmscriptenClass {}
 
 export class MemoryEditor extends Emscripten.EmscriptenClass {
     public constructor();
-    public DrawContents(ptr : number, size : number) : void;
-    public DrawWindow(title : string, ptr : number, size : number) : void;
+    public DrawContents(id : string, ptr : number, size : number) : void;
+    public DrawWindow(id : string, ptr : number, size : number) : void;
 }
 
 export interface interface_ImVec2 {

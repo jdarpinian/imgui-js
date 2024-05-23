@@ -1444,7 +1444,7 @@ export class MemoryEditor
 
     public DrawContents(id : string, buffer : ArrayBuffer | ArrayBufferView, bufferContentModified : boolean = false) : void {
         this.SetContents(buffer, bufferContentModified);
-        this._native.DrawContents(this.allocation.pointer, this.allocation.size);
+        this._native.DrawContents(id, this.allocation.pointer, this.allocation.size);
     }
     public DrawWindow(id : string, buffer : ArrayBuffer | ArrayBufferView, bufferContentModified : boolean = false) : void { this._native.DrawWindow(id, this.allocation.pointer, this.allocation.size); }
 
